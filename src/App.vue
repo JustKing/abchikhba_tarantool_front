@@ -7,6 +7,11 @@
       <div>
         {{ result }}
       </div>
+      <div v-if="result.length > 0">
+        <img
+          :src="`https://api.qrserver.com/v1/create-qr-code/?data=${result}&size=100x100`"
+        />
+      </div>
     </div>
   </div>
 </template>
@@ -18,37 +23,19 @@ import { Component, Vue } from "vue-property-decorator";
 export default class App extends Vue {
   public url = "";
   public result = "";
-  public qrCode = "";
 
   public async cutIt(): Promise<void> {
     try {
-      const response: Response = await fetch("/api/set", {
+      const response: Response = await fetch("/set", {
         method: "POST",
         body: JSON.stringify({ link: this.url }),
       });
       if (!response.ok) {
         throw new Error();
       }
-      this.result = await response.json();
-      this.getQrCode();
+      this.result = await response.text();
     } catch (e) {
-      alert("Не удалось сократить ссылку");
-    }
-  }
-
-  private async getQrCode(): Promise<void> {
-    try {
-      const response: Response = await fetch(
-        `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${this.result}`,
-        {
-          method: "GET",
-        }
-      );
-      if (!response.ok) {
-        throw new Error();
-      }
-      this.qrCode = await response.json();
-    } catch (e) {
+      console.log(e);
       alert("Не удалось сократить ссылку");
     }
   }
