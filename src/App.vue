@@ -1,20 +1,42 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png" />
-    <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+    <h2>Абчихба - ссылочный сокращатель</h2>
+    <div class="flex flex-column">
+      <input v-model="url" />
+      <button type="submit" @click="cutIt">Скоратить</button>
+      <div>
+        {{ result }}
+      </div>
+    </div>
   </div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
-import HelloWorld from "./components/HelloWorld.vue";
 
-@Component({
-  components: {
-    HelloWorld,
-  },
-})
-export default class App extends Vue {}
+@Component
+export default class App extends Vue {
+  public url = "";
+  public result = "";
+  private currentResponse: Response = new Response();
+
+  public async cutIt(): Promise<void> {
+    try {
+      const response: Response = await fetch("http://89.208.198.209:8081/set", {
+        method: "POST",
+        body: JSON.stringify({ link: this.url }),
+      });
+      if (!response.ok) {
+        this.currentResponse = response;
+        throw new Error();
+      }
+      this.result = await response.json();
+    } catch (e) {
+      this.currentResponse = new Response();
+      alert("Не удалось сократить ссылку");
+    }
+  }
+}
 </script>
 
 <style>

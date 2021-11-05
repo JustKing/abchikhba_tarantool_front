@@ -1,0 +1,9 @@
+version: "3"
+services:
+  tarantool-cutit:
+    container_name: tarantool-cutit
+    restart: always
+    tty: true
+    ports:
+      - "80:80"
+    build: .
