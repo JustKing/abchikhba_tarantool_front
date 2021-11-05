@@ -3,7 +3,7 @@
     <h2>Абчихба - ссылочный сокращатель</h2>
     <div class="flex flex-column">
       <input v-model="url" />
-      <button type="submit" @click="cutIt">Скоратить</button>
+      <button type="submit" @click="cutIt">Сократить</button>
       <div>
         {{ result }}
       </div>
@@ -18,21 +18,37 @@ import { Component, Vue } from "vue-property-decorator";
 export default class App extends Vue {
   public url = "";
   public result = "";
-  private currentResponse: Response = new Response();
+  public qrCode = "";
 
   public async cutIt(): Promise<void> {
     try {
-      const response: Response = await fetch("http://89.208.198.209:8081/set", {
+      const response: Response = await fetch("/api/set", {
         method: "POST",
         body: JSON.stringify({ link: this.url }),
       });
       if (!response.ok) {
-        this.currentResponse = response;
         throw new Error();
       }
       this.result = await response.json();
+      this.getQrCode();
     } catch (e) {
-      this.currentResponse = new Response();
+      alert("Не удалось сократить ссылку");
+    }
+  }
+
+  private async getQrCode(): Promise<void> {
+    try {
+      const response: Response = await fetch(
+        `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${this.result}`,
+        {
+          method: "GET",
+        }
+      );
+      if (!response.ok) {
+        throw new Error();
+      }
+      this.qrCode = await response.json();
+    } catch (e) {
       alert("Не удалось сократить ссылку");
     }
   }
